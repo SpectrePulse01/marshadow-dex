@@ -51,9 +51,7 @@ let mensagensSalvas = [];
 let conversaAtivaId = null;
 let perguntaEmAndamento = false;
 const CONVERSA_LEGADA_ID = "historico-anterior";
-// GitHub Pages is a hospedagem estática: nunca publique uma chave privada aqui.
-// A interface continua disponível e pode ser ligada a um endpoint seguro depois.
-const GEMINI_ENDPOINT = "";
+const GEMINI_ENDPOINT = "https://pokemon-eclipse-nexus.grand-finch-8395.chatgpt.site/api/marshadow";
 const titulosEmGeracao = new Set();
 const titulosEditadosManualmente = new Set();
 const conversasExcluidas = new Set();
@@ -338,7 +336,6 @@ function limparTituloGerado(titulo, perguntaInicial) {
 }
 
 async function gerarESalvarTituloDaConversa(perguntaInicial, conversationId) {
-    if (!GEMINI_ENDPOINT) return;
     if (!usuarioAtual || !conversationId || titulosEmGeracao.has(conversationId)) return;
     if (mensagensSalvas.some((mensagem) => mensagem.conversationId === conversationId && mensagem.role === "title")) return;
 
@@ -675,11 +672,6 @@ async function askAI() {
 
     if (!question) {
         alert("Por favor, digite uma pergunta.");
-        return;
-    }
-
-    if (!GEMINI_ENDPOINT) {
-        responseBox.innerHTML = '<div class="chat-message ai-bubble">Marshadow AI:<br>O modo de conversa precisa de um endpoint seguro e não pode expor a chave dentro de um site público. A Pokédex e o Team Builder continuam funcionando normalmente.</div>';
         return;
     }
 
