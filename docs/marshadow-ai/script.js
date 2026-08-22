@@ -2,7 +2,7 @@
 // 1. IMPORTS E CONFIGURAÇÃO DO FIREBASE (Sintaxe Modular v12)
 // =========================================================================
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
+import { getAnalytics, isSupported as analyticsIsSupported } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-analytics.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
 import { getFirestore, collection, addDoc, getDocs, query, orderBy, serverTimestamp, doc, writeBatch } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
@@ -18,7 +18,9 @@ const firebaseConfig = {
 
 // Inicializando os serviços
 const app = initializeApp(firebaseConfig);
-getAnalytics(app);
+void analyticsIsSupported().then((supported) => {
+    if (supported) getAnalytics(app);
+}).catch(() => undefined);
 const auth = getAuth(app);
 const db = getFirestore(app);
 const provider = new GoogleAuthProvider();
@@ -664,6 +666,19 @@ function typeEffect(element, text, speed = 10) {
     type();
 }
 
+function limitarHistoricoParaEnvio(history, limite = 80000) {
+    const selecionadas = [];
+    let caracteres = 0;
+    for (let index = history.length - 1; index >= 0; index -= 1) {
+        const mensagem = history[index];
+        const tamanho = String(mensagem?.parts?.[0]?.text || "").length;
+        if (selecionadas.length && caracteres + tamanho > limite) break;
+        selecionadas.unshift(mensagem);
+        caracteres += tamanho;
+    }
+    return selecionadas;
+}
+
 async function askAI() {
     const questionInput = document.getElementById("question");
     const question = questionInput.value.trim();
@@ -701,7 +716,7 @@ async function askAI() {
     questionInput.value = "";
 
     chatHistory.push({ role: "user", parts: [{ text: question }] });
-    const requestHistory = [...chatHistory];
+    const requestHistory = limitarHistoricoParaEnvio(chatHistory);
     await salvarMensagemNoFirebase("user", question, conversationId);
     reconstruirMenuLateralComHistoricoCompleto();
     if (primeiraMensagemDaConversa && usuarioAtual) {
@@ -721,11 +736,13 @@ async function askAI() {
             }
         );
 
-        const data = await response.json();
+        const data = await response.json().catch(() => ({}));
         loadingDiv.remove();
 
-        let answer = data.candidates[0].content.parts[0].text;
-        let cleanAnswer = answer.replace(/^Resposta:\s*/i, "");
+        if (!response.ok) throw new Error(data?.error || `Falha da IA: ${response.status}`);
+        const answer = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+        if (!answer) throw new Error("A IA não retornou uma resposta válida.");
+        const cleanAnswer = answer.replace(/^Resposta:\s*/i, "");
 
         await salvarMensagemNoFirebase("model", cleanAnswer, conversationId);
 
