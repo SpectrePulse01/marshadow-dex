@@ -412,7 +412,7 @@ export default function AccountSystem({ onProfileChange }: { onProfileChange?: (
           <div className="account-menu">
             <div><span className="account-avatar account-avatar--large" style={avatarVisualStyle(accountAvatarOption, true)}><img src={accountPhoto} alt="" onError={fallbackProfileImage} /></span><p><b>{account.displayName || "TREINADOR"}</b><small>{account.email}</small></p></div>
             <button className="account-menu__profile-picker" type="button" onClick={editProfile}>
-              <span className="account-menu__profile-copy"><b>ESCOLHER FOTO DE PERFIL</b><small>{AVATARS.length} FOTOS DA PASTA MAI</small></span>
+              <span className="account-menu__profile-copy"><b>ESCOLHER FOTO DE PERFIL</b></span>
               <span className="account-menu__avatar-strip" aria-hidden="true">
                 {MENU_AVATARS.map((option) => <img key={option.key} src={option.src} alt="" loading="eager" onError={fallbackProfileImage} />)}
               </span>
@@ -429,7 +429,7 @@ export default function AccountSystem({ onProfileChange }: { onProfileChange?: (
             <button className="profile-selector__close" type="button" onClick={() => setProfileOpen(false)} disabled={onboarding} aria-label="Fechar">×</button>
             <span className="eyebrow"><i /> PERFIL DE TREINADOR</span>
             <h2 id="profile-title">QUEM ESTÁ<br /><em>TREINANDO?</em></h2>
-            <p>Escolha uma das 30 fotos da sua pasta MAI para representar sua conta.</p>
+            <p>Escolha uma foto para representar sua conta.</p>
             <form onSubmit={saveProfile}>
               <label className="profile-name"><span>NOME DE TREINADOR</span><input value={trainerName} onChange={(event) => setTrainerName(event.target.value)} minLength={3} maxLength={20} autoComplete="nickname" placeholder="Seu nome no Nexus" required /></label>
               <div className="profile-avatar-tools">
@@ -440,8 +440,8 @@ export default function AccountSystem({ onProfileChange }: { onProfileChange?: (
                 <div className="profile-avatars" role="radiogroup" aria-label="Escolha sua foto de perfil">
                   {filteredAvatars.map((option) => (
                     <button key={option.key} className={`${sameAvatar(avatar, option.src) ? "is-selected" : ""} ${option.premium ? "is-premium" : "is-dex-art"}`} style={avatarVisualStyle(option)} type="button" role="radio" aria-checked={sameAvatar(avatar, option.src)} onClick={() => setAvatar(option.src)}>
-                      <span className="profile-avatar-art"><i aria-hidden="true" /><em>MAI</em><img src={option.src} alt="" loading="lazy" decoding="async" onError={fallbackProfileImage} /></span>
-                      <span className="profile-avatar-label"><b>{option.name}</b><small>PASTA MAI</small></span>
+                      <span className="profile-avatar-art"><i aria-hidden="true" /><img src={option.src} alt="" loading="lazy" decoding="async" onError={fallbackProfileImage} /></span>
+                      <span className="profile-avatar-label"><b>{option.name}</b></span>
                     </button>
                   ))}
                 </div>

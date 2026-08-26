@@ -265,9 +265,7 @@ export default function MasterBall3D({ onActivate }: MasterBall3DProps) {
   return (
     <div className={`masterball-webgl ${webglUnavailable ? "is-fallback" : ""}`} ref={mountRef}>
       {webglUnavailable && <span className="masterball-webgl__fallback" aria-hidden="true"><i>M</i></span>}
-      <button type="button" onClick={onActivate} aria-label="Abrir a Pokédex pela Master Ball 3D">
-        <span>ABRIR POKÉDEX</span>
-      </button>
+      <button type="button" onClick={onActivate} aria-label="Abrir a Pokédex pela Master Ball 3D" />
     </div>
   );
 }
