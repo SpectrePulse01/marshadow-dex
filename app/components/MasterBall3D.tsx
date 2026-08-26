@@ -25,7 +25,7 @@ export default function MasterBall3D({ onActivate }: MasterBall3DProps) {
     } catch {
       // Some mobile browsers disable WebGL under memory pressure. The CSS ball
       // keeps the Pokédex accessible instead of letting Three.js crash React.
-      setWebglUnavailable(true);
+      window.setTimeout(() => setWebglUnavailable(true), 0);
       return;
     }
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
