@@ -48,3 +48,4 @@ test -f "$OUTPUT_DIR/assets/profile/pinterest/perfil-01.webp"
 test -f "$OUTPUT_DIR/assets/profile/pinterest/perfil-30.webp"
 grep -q '/marshadow-dex/assets/' "$OUTPUT_DIR/marshadow-ai/index.html"
 grep -q 'grand-finch-8395.chatgpt.site/api/marshadow' "$OUTPUT_DIR/marshadow-ai/script.js"
+! grep -R -qE '"/assets/(marshadow-dex-opening-lite|marshadow-dex-brand|haunter-cursor-transparent|marshadow-zenith-lite)' "$OUTPUT_DIR/assets"/*.js

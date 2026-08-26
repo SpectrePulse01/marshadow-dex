@@ -154,7 +154,7 @@ export default function Home() {
             <span className="team-builder-trigger__mark" aria-hidden="true"><i /><i /><i /><i /><i /><i /></span>
             <span className="team-builder-trigger__copy"><b>TEAM BUILDER</b><small>ANÁLISE TÁTICA</small></span>
           </a>
-          <a className="talk-marshadow" href="/marshadow-ai/index.html" aria-label="Fale com Marshadow AI">
+          <a className="talk-marshadow" href="marshadow-ai/index.html" aria-label="Fale com Marshadow AI">
             <span className="talk-marshadow__mark" aria-hidden="true"><i /><i /></span>
             <span className="talk-marshadow__copy"><b>FALE COM MARSHADOW</b><small>IA COMPETITIVA</small></span>
           </a>
@@ -246,7 +246,7 @@ export default function Home() {
         </Suspense>
       )}
 
-      {entered && <img className="cursor-haunter" ref={cursorGhostRef} src="/assets/haunter-cursor-transparent.gif" alt="" aria-hidden="true" draggable={false} />}
+      {entered && <img className="cursor-haunter" ref={cursorGhostRef} src="assets/haunter-cursor-transparent.gif" alt="" aria-hidden="true" draggable={false} />}
       {entered && <aside className="scroll-reactor" aria-hidden="true"><small>VEIL</small><div><span ref={scrollFillRef} /></div><b ref={scrollTextRef}>00</b></aside>}
     </main>
   );
