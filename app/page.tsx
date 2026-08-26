@@ -3,7 +3,8 @@
 import { lazy, Suspense, useCallback, useEffect, useRef, useState, type CSSProperties, type MouseEvent } from "react";
 import MarshadowCinematic from "./components/MarshadowCinematic";
 
-const MasterBall3D = lazy(() => import("./components/MasterBall3D"));
+const loadMasterBall3D = () => import("./components/MasterBall3D");
+const MasterBall3D = lazy(loadMasterBall3D);
 const PokedexPortal = lazy(() => import("./components/PokedexPortal"));
 const TeamBuilder = lazy(() => import("./components/TeamBuilder"));
 const AccountSystem = lazy(() => import("./components/AccountSystem"));
@@ -30,6 +31,13 @@ export default function Home() {
   useEffect(() => () => {
     window.clearTimeout(dexOpenTimerRef.current);
     window.clearTimeout(dexEndTimerRef.current);
+  }, []);
+
+  useEffect(() => {
+    // Warm the large 3D module after the opening video has had time to buffer.
+    // This avoids competing with the intro while keeping the Master Ball ready.
+    const preloadTimer = window.setTimeout(() => void loadMasterBall3D(), 4200);
+    return () => window.clearTimeout(preloadTimer);
   }, []);
 
   useEffect(() => {

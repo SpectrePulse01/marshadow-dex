@@ -4,12 +4,14 @@ import { useCallback, useEffect, useRef, useState } from "react";
 
 type MarshadowCinematicProps = { onComplete: () => void };
 type IntroPhase = "film" | "brand";
-const BRAND_START_SECONDS = 8.08;
 
 export default function MarshadowCinematic({ onComplete }: MarshadowCinematicProps) {
   const callbackRef = useRef(onComplete);
   const filmRef = useRef<HTMLVideoElement>(null);
+  const brandRef = useRef<HTMLVideoElement>(null);
   const phaseRef = useRef<IntroPhase>("film");
+  const brandTimerRef = useRef<number>(0);
+  const brandPreparedRef = useRef(false);
   const finishedRef = useRef(false);
   const [phase, setPhase] = useState<IntroPhase>("film");
   const [exiting, setExiting] = useState(false);
@@ -20,9 +22,23 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
   const finish = useCallback((fast = false) => {
     if (finishedRef.current) return;
     finishedRef.current = true;
+    window.clearTimeout(brandTimerRef.current);
     filmRef.current?.pause();
+    brandRef.current?.pause();
     setExiting(true);
     window.setTimeout(() => callbackRef.current(), fast ? 180 : 480);
+  }, []);
+
+  const prepareBrand = useCallback(() => {
+    if (finishedRef.current || brandPreparedRef.current) return;
+    const brand = brandRef.current;
+    if (!brand) return;
+
+    brandPreparedRef.current = true;
+    brand.currentTime = 0;
+    void brand.play().catch(() => {
+      brandPreparedRef.current = false;
+    });
   }, []);
 
   const revealBrand = useCallback(() => {
@@ -30,19 +46,30 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
     phaseRef.current = "brand";
     setPhase("brand");
     setNeedsTap(false);
-  }, []);
+
+    const brand = brandRef.current;
+    if (brand?.paused) {
+      brand.currentTime = 0;
+      void brand.play().catch(() => finish());
+    }
+
+    brandTimerRef.current = window.setTimeout(() => finish(), 3100);
+  }, [finish]);
 
   useEffect(() => {
-    const absoluteFallback = window.setTimeout(() => finish(), 12500);
+    const brandFallback = window.setTimeout(revealBrand, 9500);
+    const absoluteFallback = window.setTimeout(() => finish(), 13100);
     const onKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") finish(true);
     };
     window.addEventListener("keydown", onKeyDown);
     return () => {
+      window.clearTimeout(brandFallback);
       window.clearTimeout(absoluteFallback);
+      window.clearTimeout(brandTimerRef.current);
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [finish]);
+  }, [finish, revealBrand]);
 
   const startPlayback = async () => {
     try {
@@ -53,10 +80,10 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
     }
   };
 
-  const syncTitlePhase = () => {
+  const prepareBrandNearEnd = () => {
     const video = filmRef.current;
-    if (!video) return;
-    if (video.currentTime >= BRAND_START_SECONDS) revealBrand();
+    if (!video || !Number.isFinite(video.duration)) return;
+    if (video.currentTime >= video.duration - 0.35) prepareBrand();
   };
 
   return (
@@ -71,6 +98,7 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
         <video
           ref={filmRef}
           className="reference-intro__video reference-intro__video--film"
+          src="assets/marshadow-dex-opening-lite.mp4"
           autoPlay
           muted
           playsInline
@@ -78,19 +106,30 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
           disablePictureInPicture
           controlsList="nodownload nofullscreen noremoteplayback"
           onCanPlay={startPlayback}
-          onTimeUpdate={syncTitlePhase}
-          onEnded={() => finish()}
-          onError={() => finish(true)}
-        >
-          <source media="(max-width: 720px)" src="assets/marshadow-dex-intro-mobile.mp4" type="video/mp4" />
-          <source src="assets/marshadow-dex-intro-desktop.mp4" type="video/mp4" />
-        </video>
+          onTimeUpdate={prepareBrandNearEnd}
+          onEnded={revealBrand}
+          onError={revealBrand}
+        />
 
-        {phase === "brand" && (
-          <div className="reference-intro__name">
-            <strong>Marshadow Dex</strong><i />
-          </div>
-        )}
+        <div className="reference-intro__brand-frame" aria-hidden={phase !== "brand"}>
+          <video
+            ref={brandRef}
+            className="reference-intro__brand-video"
+            src="assets/marshadow-dex-brand.mp4"
+            muted
+            playsInline
+            preload="auto"
+            disablePictureInPicture
+            controlsList="nodownload nofullscreen noremoteplayback"
+            onEnded={() => finish()}
+            onError={() => finish()}
+          />
+          {phase === "brand" && (
+            <div className="reference-intro__name">
+              <strong>Marshadow Dex</strong><i />
+            </div>
+          )}
+        </div>
 
         {needsTap && phase === "film" && (
           <button type="button" className="reference-intro__tap" onClick={startPlayback}>TOQUE PARA INICIAR</button>
