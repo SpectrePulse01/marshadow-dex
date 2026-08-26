@@ -11,6 +11,8 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
   const brandRef = useRef<HTMLVideoElement>(null);
   const phaseRef = useRef<IntroPhase>("film");
   const brandTimerRef = useRef<number>(0);
+  const brandRevealTimerRef = useRef<number>(0);
+  const brandShownRef = useRef(false);
   const finishedRef = useRef(false);
   const [phase, setPhase] = useState<IntroPhase>("film");
   const [exiting, setExiting] = useState(false);
@@ -22,27 +24,46 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
     if (finishedRef.current) return;
     finishedRef.current = true;
     window.clearTimeout(brandTimerRef.current);
+    window.clearTimeout(brandRevealTimerRef.current);
     filmRef.current?.pause();
     brandRef.current?.pause();
     setExiting(true);
     window.setTimeout(() => callbackRef.current(), fast ? 180 : 480);
   }, []);
 
-  const revealBrand = useCallback(() => {
-    if (finishedRef.current || phaseRef.current === "brand") return;
-    phaseRef.current = "brand";
-    setPhase("brand");
-    setNeedsTap(false);
-
-    const brand = brandRef.current;
-    if (brand) {
-      brand.currentTime = 0;
-      void brand.play().catch(() => undefined);
-    }
+  const showBrand = useCallback(() => {
+    if (finishedRef.current || brandShownRef.current) return;
+    brandShownRef.current = true;
+    window.clearTimeout(brandRevealTimerRef.current);
+    window.requestAnimationFrame(() => setPhase("brand"));
 
     // Safety gate: the site is always released even if a media event fails.
     brandTimerRef.current = window.setTimeout(() => finish(), 3100);
   }, [finish]);
+
+  const revealBrand = useCallback(() => {
+    if (finishedRef.current || phaseRef.current === "brand") return;
+    phaseRef.current = "brand";
+    setNeedsTap(false);
+
+    const brand = brandRef.current;
+    if (!brand) {
+      showBrand();
+      return;
+    }
+
+    brand.currentTime = 0;
+    const playback = brand.play();
+
+    // Reveal only after the first frame is ready; the timeout prevents a
+    // slow decoder from ever holding the opening screen indefinitely.
+    brandRevealTimerRef.current = window.setTimeout(showBrand, 160);
+    if (playback) {
+      void playback.then(showBrand).catch(showBrand);
+    } else {
+      showBrand();
+    }
+  }, [showBrand]);
 
   useEffect(() => {
     const brandFallback = window.setTimeout(revealBrand, 9500);
@@ -55,6 +76,7 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
       window.clearTimeout(brandFallback);
       window.clearTimeout(absoluteFallback);
       window.clearTimeout(brandTimerRef.current);
+      window.clearTimeout(brandRevealTimerRef.current);
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [finish, revealBrand]);
@@ -71,7 +93,7 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
   const startBridgeNearEnd = () => {
     const video = filmRef.current;
     if (!video || !Number.isFinite(video.duration)) return;
-    if (video.currentTime >= video.duration - 0.5) revealBrand();
+    if (video.currentTime >= video.duration - 0.8) revealBrand();
   };
 
   return (
@@ -106,7 +128,7 @@ export default function MarshadowCinematic({ onComplete }: MarshadowCinematicPro
             src="assets/marshadow-dex-brand.mp4"
             muted
             playsInline
-            preload="metadata"
+            preload="auto"
             disablePictureInPicture
             controlsList="nodownload nofullscreen noremoteplayback"
             onEnded={() => finish()}

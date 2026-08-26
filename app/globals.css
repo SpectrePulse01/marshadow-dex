@@ -688,7 +688,7 @@ button { color: inherit; }
 .dex-entry__visual { position: sticky; top: 0; min-height: calc(100vh - 5.6rem); display: flex; flex-direction: column; align-items: center; justify-content: center; overflow: hidden; background: radial-gradient(circle at 50% 45%, rgba(163,59,242,.24), transparent 32%), linear-gradient(145deg, #100618, #050208); }
 .dex-entry__visual::before { content: ""; position: absolute; inset: 7%; border: 1px solid rgba(177,74,255,.15); border-radius: 50%; box-shadow: inset 0 0 60px rgba(150,46,224,.07); }
 .dex-number { position: absolute; left: 1.3rem; top: 1.2rem; color: rgba(207,157,235,.14); font: 900 clamp(3rem, 6vw, 7rem)/1 var(--font-geist-mono), monospace; letter-spacing: -.08em; }
-.dex-entry__visual img { position: relative; z-index: 4; width: min(84%, 470px); max-height: 57vh; object-fit: contain; filter: drop-shadow(0 30px 30px rgba(0,0,0,.55)) drop-shadow(0 0 28px rgba(159,60,244,.28)); animation: dex-pokemon 4s ease-in-out infinite; }
+.dex-entry__visual img { position: relative; z-index: 4; width: min(84%, 470px); max-height: 57vh; object-fit: contain; filter: drop-shadow(0 30px 30px rgba(0,0,0,.55)) drop-shadow(0 0 28px rgba(159,60,244,.28)); animation: none; transform: none; }
 .dex-orbit { position: absolute; inset: 0; display: grid; place-items: center; }
 .dex-orbit i { position: absolute; left: 50%; top: 50%; width: 64%; aspect-ratio: 1; border: 1px dashed rgba(180,77,255,.25); border-radius: 50%; animation: spin 24s linear infinite; }
 .dex-orbit i:nth-child(2) { width: 48%; animation-direction: reverse; animation-duration: 17s; }
@@ -851,7 +851,6 @@ button { color: inherit; }
 @keyframes dex-flash { 0%,100% { background: transparent; } 43%,76% { background: #09020f; } }
 @keyframes dex-copy { 0%,22%,100% { opacity: 0; } 42%,76% { opacity: 1; } }
 @keyframes dex-scan { from { transform: translateY(0); } to { transform: translateY(100vh); } }
-@keyframes dex-pokemon { 0%,100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-14px) rotate(1deg); } }
 @keyframes stat-fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 @keyframes drawer-enter { from { opacity: 0; transform: translateY(-10px); clip-path: inset(0 0 100%); } to { opacity: 1; transform: translateY(0); clip-path: inset(0); } }
 
@@ -1800,7 +1799,7 @@ button { color: inherit; }
   transition: opacity .42s ease, filter .42s ease;
 }
 .reference-intro[data-phase="name"] .reference-intro__video { opacity: 0; filter: blur(10px); }
-.reference-intro[data-phase="brand"] .reference-intro__video--film { opacity: 0; filter: blur(8px) brightness(.45); }
+.reference-intro[data-phase="brand"] .reference-intro__video--film { opacity: 0; }
 
 .reference-intro__brand-frame {
   position: absolute;
@@ -1812,9 +1811,11 @@ button { color: inherit; }
   background: #000;
   opacity: 0;
   pointer-events: none;
+  will-change: opacity;
+  transform: translateZ(0);
 }
 .reference-intro[data-phase="brand"] .reference-intro__brand-frame {
-  animation: reference-brand-crossfade .72s cubic-bezier(.2,.7,.2,1) forwards;
+  animation: reference-brand-crossfade .58s linear forwards;
 }
 .reference-intro__brand-video { display: block; width: 100%; height: 100%; object-fit: cover; object-position: center; }
 .reference-intro__brand-frame .reference-intro__name strong {
@@ -1878,12 +1879,12 @@ button { color: inherit; }
 }
 
 @keyframes reference-name-arrive {
-  from { opacity: 0; transform: translate(-50%, -50%) scale(.9); filter: blur(10px); }
-  to { opacity: 1; transform: translate(-50%, -50%) scale(1); filter: none; }
+  from { opacity: 0; transform: translate(-50%, -50%) scale(.94); }
+  to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
 }
 @keyframes reference-brand-crossfade {
-  from { opacity: 0; transform: scale(1.015); filter: blur(5px); }
-  to { opacity: 1; transform: scale(1); filter: none; }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 @keyframes reference-bridge-flash {
   0% { opacity: 0; }
