@@ -1799,7 +1799,6 @@ button { color: inherit; }
   transition: opacity .42s ease, filter .42s ease;
 }
 .reference-intro[data-phase="name"] .reference-intro__video { opacity: 0; filter: blur(10px); }
-.reference-intro[data-phase="brand"] .reference-intro__video--film { opacity: 0; }
 
 .reference-intro__brand-frame {
   position: absolute;
@@ -2364,7 +2363,6 @@ button { color: inherit; }
     radial-gradient(ellipse at 50% 53%, rgba(91,24,119,.18), transparent 34%),
     #000;
 }
-.reference-intro:not([data-phase="film"]) .reference-intro__video--film { opacity: 0; }
 
 .reference-intro__speed {
   left: 4%;
